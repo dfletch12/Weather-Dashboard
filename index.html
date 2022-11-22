@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid=0e9a6ce0cacba1e8a3ea86addd259f81">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+
+
+    <title>5-day Forecast</title>
+</head>
+<body>
+    <h1> 5-day Weather App</h1>
+    <ul class="float-end nav nav-tabs">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Past Cities</a>
+            <ul id="cityHistory" class="dropdown-menu">
+            </ul>
+        </li>
+    </ul>
+    <form class="row g-3">
+        <div class="col-auto">
+            <label for="location" id="location" class="visually-hidden"></label>
+            <input type="city" class="form-control" id="cityInput" placeholder="Input City Here">
+        </div>
+        <div class="col-auto">  
+            <button type="submit" id='submit'class="btn btn-primary mb-3">Submit</button>
+        </div>
+    </form>
+    <div id="todayWeather"></div>
+    <div class="showHumidity"></div>
+    <div class="showTemp"></div>
+    <div id="weekWeather"></div>
+    <!-- <p><button class="w3-btn w3-blue" onclick="getLocation()">Try It</button></p> -->
+<!-- <div id="mapholder"></div>
+<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script>
+var x=document.getElementById("demo");
+function getLocation()
+  {
+  if (navigator.geolocation)
+    {
+    navigator.geolocation.getCurrentPosition(showPosition,showError);
+    }
+  else{x.innerHTML="Geolocation is not supported by this browser.";}
+  }
+
+function showPosition(position)
+  {
+  lat=position.coords.latitude;
+  lon=position.coords.longitude;
+  latlon=new google.maps.LatLng(lat, lon)
+  mapholder=document.getElementById('mapholder')
+  mapholder.style.height='250px';
+  mapholder.style.width='100%';
+
+  var myOptions={
+  center:latlon,zoom:14,
+  mapTypeId:google.maps.MapTypeId.ROADMAP,
+  mapTypeControl:false,
+  navigationControlOptions:{style:google.maps.NavigationControlStyle.SMALL}
+  };
+  var map=new google.maps.Map(document.getElementById("mapholder"),myOptions);
+  var marker=new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
+  }
+
+function showError(error)
+
+</script> -->
+
+</body>
+</html>
