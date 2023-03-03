@@ -1,54 +1,143 @@
-const dropdownElementList = document.querySelectorAll('.dropdown-toggle')
-const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
-var cityHistory = [];
-var key= '0e9a6ce0cacba1e8a3ea86addd259f81'
-var cityInput= $("#cityInput")
+var cityInput = document.getElementById('cityInput');
+var searchBtn = document.getElementById('search');
+var currentCity = document.getElementById('currentCity');
+var temp = document.getElementById('temp');
+var wind = document.getElementById('wind');
+var humidity = document.getElementById('humidity');
+var listEl = document.getElementById('list');
+var icon = document.getElementById('icon');
 
-function storeCityHistory() {
-    localStorage.setItem("cityList",JSON.stringify(cityHistory));
+var listItem;
+var apiKey = "0e9a6ce0cacba1e8a3ea86addd259f81";
+var citys = [];
+var cityLon, cityLat;
+icon.style.display = "none";
+
+// search on click
+searchBtn.addEventListener('click', search);
+
+// search function
+function search() {
+  var cityName = cityInput.value;
+  if (cityName == "") {
+    return;
+  }
+  listItem = document.createElement("button");
+  listItem.setAttribute('id', cityName);
+  listItem.classList.add("btns", "list-group-item", "list-group-item-action");
+  listItem.textContent = cityName;
+  listEl.appendChild(listItem);
+  cityInput.value = "";
+  getCityName(cityName);
 }
+// if city is not valid alert
+function getCityName(name) {
+  if (!name) {
+    alert('Please Enter a city');
+    return;
+  }
+  citys.push(name);
+  cityToLonLat(name);
 
-function cityHistoryList (){
-    $("#cityHistory").empty();
-    cityHistory.forEach(function(city){
-        $("#cityHistory").append($('<li><button class="dropdown-item cityBtn" data-city="${city}">${city}</button></li>'));
+}
+// changes city name to coordinates
+function cityToLonLat(city) {
+  fetch('https://api.openweathermap.org/geo/1.0/direct?q=' + city + '&appid=' + apiKey, {
+
+  })
+    .then(function (response) {
+      return response.json();
     })
+    .then(function (data) {
+      if (data == "") {
+        alert('not a valid city please try again');
+        citys.pop();
+        return;
+      }
+      localStorage.setItem('citys', JSON.stringify(citys));
+      cityLon = data[0].lon;
+      cityLat = data[0].lat;
+      currentWeather();
+    });
+
+}
+// fetches weather data
+function currentWeather() {
+  fetch('https://api.openweathermap.org/data/2.5/weather?lat=' + cityLat + '&lon=' + cityLon + '&appid=' + apiKey + '&units=imperial', {
+
+  })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      var weaatherIcon = data.weather[0].icon;
+      var weatherIconUrl = "https://openweathermap.org/img/wn/" + weaatherIcon + "@2x.png";
+      icon.src = weatherIconUrl;
+      icon.style.display = "block";
+      currentCity.textContent = data.name + " " + new Date(data.dt * 1000).toLocaleString();
+      temp.textContent = "Temp: " + data.main.temp + ' °F';
+      wind.textContent = "Wind: " + data.wind.speed + ' mph';
+      humidity.textContent = "Humidity: " + data.main.humidity + ' %';
+      fiveDayForcast();
+    });
+}
+// fetches 5 day forcast
+function fiveDayForcast() {
+  fetch('https://api.openweathermap.org/data/2.5/forecast?lat=' + cityLat + '&lon=' + cityLon + '&appid=' + apiKey + '&units=imperial', {
+
+  })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      for (let i = 1; i <= 5; i++) {
+        var iconElement = document.getElementById('icon-' + i);
+        var futureDates = document.getElementById('future-days-' + i);
+        var futureTemps = document.getElementById('future-temps-' + i);
+        var futureWind = document.getElementById('future-wind-' + i);
+        var futureHumidity = document.getElementById('future-humidity-' + i);
+        var dayHourCount = (i * 8) - 1;
+        var icon = data.list[dayHourCount].weather[0].icon;
+        var weatherIconUrl = "https://openweathermap.org/img/wn/" + icon + "@2x.png";
+        iconElement.src = weatherIconUrl;
+        futureDates.textContent = new Date(data.list[dayHourCount].dt * 1000).toDateString();
+        futureTemps.textContent = "Temp: " + data.list[dayHourCount].main.temp + " °F";
+        futureWind.textContent = "Wind: " + data.list[dayHourCount].wind.speed + " mph";
+        futureHumidity.textContent = "Humidity: " + data.list[dayHourCount].main.humidity + " %";
+
+
+      }
+    });
 }
 
-// get forecast
-function getForecast(cityInput,key){
-    preventDefault()
+// If recent search is clicked get city name
 
-    $(document).ready(function() {
-        $('#submit').click(function() {
-          const city = $('#cityInput').val();
-          $('cityInput').val("");
-      
-          let request = new XMLHttpRequest();
-          const url = `http://api.openweathermap.org/data/2.5/weather?q=${cityInput}&appid=${key}`;
-      
-          request.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-              const response = JSON.parse(this.responseText);
-              getElements(response);
-            }
-          };
-      
-          request.open("GET", url, true);
-          request.send();
-      
-         function getElements(response) {
-            console.log(response)
-            $('.showHumidity').text(`The humidity in ${city} is ${response.main.humidity}%`);
-            $('.showTemp').text(`The temperature in Kelvins is ${response.main.temp} degrees.`);
-          }
-        });
-      });
+listEl.addEventListener('click', function (event) {
+  var targetcity = event.target.id;
+  getCityName(targetcity);
+})
+
+// Pull recent search from localStorage
+
+window.onload = function () {
+  var newCitys = JSON.parse(localStorage.getItem('citys'))
+
+  if (newCitys == null) {
+    return;
+  }
+  for (let i = 0; i < newCitys.length; i++) {
+    var listItems = document.createElement('button');
+    listItems.classList.add("btns", "list-group-item", "list-group-item-action");
+    listItems.textContent = newCitys[i];
+    listItems.setAttribute('id', newCitys[i]);
+    listEl.appendChild(listItems);
+  }
 }
 
-function displayWeather() {
-    var city= $(this).attr("data-city");
-}
+// on click clear localStorage and reload page
 
-$('#cityHistory').click(".cityBtn", displayWeather);
-// api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
+clrBtn = document.getElementById('clear');
+clrBtn.addEventListener('click', () => {
+  localStorage.clear();
+  window.location.reload();
+})
