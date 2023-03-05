@@ -6,6 +6,7 @@ var wind = document.getElementById('wind');
 var humidity = document.getElementById('humidity');
 var listEl = document.getElementById('list');
 var icon = document.getElementById('icon');
+var clearBtn = document.getElementById('clear');
 
 var listItem;
 var apiKey = "0e9a6ce0cacba1e8a3ea86addd259f81";
@@ -16,15 +17,24 @@ icon.style.display = "none";
 // search on click
 searchBtn.addEventListener('click', search);
 
+// search on enter
+cityInput.addEventListener('keyup', function (event) {
+  if (event.keyCode === 13) {
+    event.preventDefault();
+    searchBtn.click();
+  }
+})
 // search function
 function search() {
   var cityName = cityInput.value;
   if (cityName == "") {
     return;
   }
+      // clearBtn removes display none class from clear button
+  clearBtn.classList.remove("d-none");
   listItem = document.createElement("button");
   listItem.setAttribute('id', cityName);
-  listItem.classList.add("btns", "list-group-item", "list-group-item-action");
+  listItem.classList.add("btns", "bg-info", "list-group-item", "list-group-item-action");
   listItem.textContent = cityName;
   listEl.appendChild(listItem);
   cityInput.value = "";
@@ -37,11 +47,11 @@ function getCityName(name) {
     return;
   }
   citys.push(name);
-  cityToLonLat(name);
+  cityCoords(name);
 
 }
 // changes city name to coordinates
-function cityToLonLat(city) {
+function cityCoords(city) {
   fetch('https://api.openweathermap.org/geo/1.0/direct?q=' + city + '&appid=' + apiKey, {
 
   })
@@ -50,7 +60,7 @@ function cityToLonLat(city) {
     })
     .then(function (data) {
       if (data == "") {
-        alert('not a valid city please try again');
+        alert('Please Enter a valid city');
         citys.pop();
         return;
       }
@@ -91,12 +101,13 @@ function fiveDayForcast() {
     })
     .then(function (data) {
       for (let i = 1; i <= 5; i++) {
-        var iconElement = document.getElementById('icon-' + i);
-        var futureDates = document.getElementById('future-days-' + i);
+        
         var futureTemps = document.getElementById('future-temps-' + i);
         var futureWind = document.getElementById('future-wind-' + i);
+        var futureDates = document.getElementById('future-days-' + i);
         var futureHumidity = document.getElementById('future-humidity-' + i);
-        var dayHourCount = (i * 8) - 1;
+        var iconElement = document.getElementById('icon-' + i);
+        var dayHourCount = (i * 8) - 1; 
         var icon = data.list[dayHourCount].weather[0].icon;
         var weatherIconUrl = "https://openweathermap.org/img/wn/" + icon + "@2x.png";
         iconElement.src = weatherIconUrl;
@@ -117,7 +128,7 @@ listEl.addEventListener('click', function (event) {
   getCityName(targetcity);
 })
 
-// Pull recent search from localStorage
+// Pull from localStorage
 
 window.onload = function () {
   var newCitys = JSON.parse(localStorage.getItem('citys'))
@@ -134,10 +145,9 @@ window.onload = function () {
   }
 }
 
-// on click clear localStorage and reload page
+// clear localStorage 
 
-clrBtn = document.getElementById('clear');
-clrBtn.addEventListener('click', () => {
+clearBtn.addEventListener('click', () => {
   localStorage.clear();
   window.location.reload();
 })
