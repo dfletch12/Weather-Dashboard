@@ -39,6 +39,18 @@ function search() {
   listEl.appendChild(listItem);
   cityInput.value = "";
   getCityName(cityName);
+  // add x button to each list item and remove item on click
+    var xBtn = document.createElement('button');
+    xBtn.classList.add("btns", "btn", "btn-danger", "btn-sm", "float-right");
+    xBtn.textContent = "X";
+    listItem.appendChild(xBtn);
+    xBtn.addEventListener('click', function (event) {
+      event.stopPropagation();
+      listItem.remove();
+      citys.splice(i, 1);
+      localStorage.setItem('citys', JSON.stringify(citys));
+      clearBtn.classList.add("d-none");
+    })
 }
 // if city is not valid alert
 function getCityName(name) {
